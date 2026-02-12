@@ -689,28 +689,27 @@ def revenue_analytics(
     db: Session = Depends(get_db)
 ):
     """Daily revenue over the last N days."""
+    from sqlalchemy import String, cast
     start_date = datetime.now() - timedelta(days=days)
 
-    # Separate queries for SQLite compatibility
+    # Database-agnostic date grouping (works on both SQLite + PostgreSQL)
+    day_expr = func.substr(cast(Transaction.transaction_date, String), 1, 10)
+
     sales = db.query(
-        func.strftime('%Y-%m-%d', Transaction.transaction_date).label("day"),
+        day_expr.label("day"),
         func.sum(Transaction.total_amount).label("total"),
     ).filter(
         Transaction.transaction_date >= start_date,
         Transaction.transaction_type == "sale"
-    ).group_by(
-        func.strftime('%Y-%m-%d', Transaction.transaction_date)
-    ).all()
+    ).group_by(day_expr).all()
 
     wastages = db.query(
-        func.strftime('%Y-%m-%d', Transaction.transaction_date).label("day"),
+        day_expr.label("day"),
         func.sum(Transaction.total_amount).label("total"),
     ).filter(
         Transaction.transaction_date >= start_date,
         Transaction.transaction_type == "wastage"
-    ).group_by(
-        func.strftime('%Y-%m-%d', Transaction.transaction_date)
-    ).all()
+    ).group_by(day_expr).all()
 
     # Combine results
     revenue_map = {r.day: float(r.total or 0) for r in sales}
