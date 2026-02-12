@@ -2230,9 +2230,7 @@ window.submitRestock = submitRestock;
 window.closeWastageModal = closeWastageModal;
 window.submitWastage = submitWastage;
 window.clearAllNotifications = clearAllNotifications;
-window.openRestockModal = openRestockModal;
-window.openWastageModal = openWastageModal;
-window.openEditProductModal = openEditProductModal;
+
 
 // Auto-exposed functions for HTML event handlers
 window.animateValue = animateValue;
