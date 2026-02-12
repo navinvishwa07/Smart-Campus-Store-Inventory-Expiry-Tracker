@@ -12,6 +12,8 @@
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="./styles.css">
 </head>
 
@@ -25,22 +27,31 @@
         </div>
         <div class="login-card">
             <div class="login-brand">
-                <div class="login-brand-icon">🏪</div>
+                <div class="login-brand-icon">
+                    <i data-lucide="store" class="login-icon-svg"></i>
+                </div>
                 <h1>Campus<span>Store</span></h1>
                 <p class="login-subtitle">Inventory & Expiry Management System</p>
             </div>
             <form id="login-form" autocomplete="off">
                 <div class="login-field">
                     <label for="login-username">Username</label>
-                    <input type="text" id="login-username" placeholder="Enter username" required autofocus>
+                    <div class="input-icon-wrap">
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="login-username" placeholder="Enter username" required autofocus>
+                    </div>
                 </div>
                 <div class="login-field">
                     <label for="login-password">Password</label>
-                    <input type="password" id="login-password" placeholder="Enter password" required>
+                    <div class="input-icon-wrap">
+                        <i data-lucide="lock" class="input-icon"></i>
+                        <input type="password" id="login-password" placeholder="Enter password" required>
+                    </div>
                 </div>
                 <div id="login-error" class="login-error" style="display:none"></div>
                 <button type="submit" class="login-btn" id="login-btn">
                     <span class="login-btn-text">Sign In</span>
+                    <i data-lucide="arrow-right" class="login-btn-arrow"></i>
                     <span class="login-btn-spinner" style="display:none">⏳</span>
                 </button>
             </form>
@@ -65,30 +76,61 @@
         <!-- ─── Sidebar Nav ─── -->
         <nav id="sidebar" class="sidebar">
             <div class="sidebar-brand">
-                <div class="brand-icon">🏪</div>
-                <h1>Campus<span>Store</span></h1>
+                <div class="brand-icon">
+                    <i data-lucide="store" class="brand-icon-svg"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Campus<span>Store</span></h1>
+                </div>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Collapse sidebar">
+                    <i data-lucide="panel-left-close"></i>
+                </button>
             </div>
+            <div class="nav-section-label">MAIN</div>
             <ul class="nav-links">
                 <li><a href="#" class="nav-link active" data-page="dashboard" id="nav-dashboard">
-                        <span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>
+                        <i data-lucide="layout-dashboard" class="nav-icon-svg"></i>
+                        <span class="nav-text">Dashboard</span>
                     </a></li>
                 <li><a href="#" class="nav-link" data-page="inventory" id="nav-inventory">
-                        <span class="nav-icon">📦</span><span class="nav-text">Inventory</span>
+                        <i data-lucide="package" class="nav-icon-svg"></i>
+                        <span class="nav-text">Inventory</span>
                     </a></li>
                 <li><a href="#" class="nav-link" data-page="expiry" id="nav-expiry">
-                        <span class="nav-icon">⏰</span><span class="nav-text">Expiry Monitor</span>
+                        <i data-lucide="clock" class="nav-icon-svg"></i>
+                        <span class="nav-text">Expiry Tracker</span>
+                        <span class="nav-badge" id="nav-expiry-badge"></span>
                     </a></li>
+                <li><a href="#" class="nav-link" data-page="lowstock" id="nav-lowstock">
+                        <i data-lucide="trending-down" class="nav-icon-svg"></i>
+                        <span class="nav-text">Low Stock</span>
+                        <span class="nav-badge warning" id="nav-lowstock-badge"></span>
+                    </a></li>
+            </ul>
+            <div class="nav-section-label">OPERATIONS</div>
+            <ul class="nav-links">
                 <li><a href="#" class="nav-link" data-page="pos" id="nav-pos">
-                        <span class="nav-icon">💳</span><span class="nav-text">POS / Sales</span>
-                    </a></li>
-                <li><a href="#" class="nav-link" data-page="analytics" id="nav-analytics">
-                        <span class="nav-icon">📈</span><span class="nav-text">Analytics</span>
+                        <i data-lucide="credit-card" class="nav-icon-svg"></i>
+                        <span class="nav-text">POS / Sales</span>
                     </a></li>
                 <li><a href="#" class="nav-link" data-page="scanner" id="nav-scanner">
-                        <span class="nav-icon">📷</span><span class="nav-text">Barcode Scan</span>
+                        <i data-lucide="scan-barcode" class="nav-icon-svg"></i>
+                        <span class="nav-text">Barcode Scan</span>
+                    </a></li>
+            </ul>
+            <div class="nav-section-label">INSIGHTS</div>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link" data-page="analytics" id="nav-analytics">
+                        <i data-lucide="bar-chart-3" class="nav-icon-svg"></i>
+                        <span class="nav-text">Analytics</span>
                     </a></li>
                 <li><a href="#" class="nav-link" data-page="ml" id="nav-ml">
-                        <span class="nav-icon">🤖</span><span class="nav-text">ML Insights</span>
+                        <i data-lucide="brain" class="nav-icon-svg"></i>
+                        <span class="nav-text">ML Insights</span>
+                    </a></li>
+                <li><a href="#" class="nav-link" data-page="reports" id="nav-reports">
+                        <i data-lucide="file-text" class="nav-icon-svg"></i>
+                        <span class="nav-text">Reports</span>
                     </a></li>
             </ul>
             <div class="sidebar-footer">
@@ -99,7 +141,9 @@
                         <span class="user-role-badge" id="sidebar-user-role">staff</span>
                     </div>
                 </div>
-                <button class="btn-logout" id="btn-logout" onclick="logoutUser()" title="Sign Out">⎋</button>
+                <button class="btn-logout" id="btn-logout" onclick="logoutUser()" title="Sign Out">
+                    <i data-lucide="log-out" style="width:16px;height:16px"></i>
+                </button>
             </div>
         </nav>
 
@@ -107,19 +151,24 @@
         <main id="main-content" class="main-content">
             <!-- Top Bar -->
             <header class="topbar">
-                <button id="menu-toggle" class="menu-toggle">☰</button>
+                <button id="menu-toggle" class="menu-toggle">
+                    <i data-lucide="menu"></i>
+                </button>
                 <div class="topbar-search">
+                    <i data-lucide="search" class="search-icon"></i>
                     <input type="text" id="global-search" placeholder="Search products, barcodes..." autocomplete="off">
                 </div>
                 <div class="topbar-actions">
                     <span id="current-time" class="clock"></span>
                     <div class="notification-container">
                         <button class="notification-bell" id="notification-bell" aria-label="Notifications">
-                            🔔 <span class="badge" id="alert-badge"></span>
+                            <i data-lucide="bell"></i>
+                            <span class="badge" id="alert-badge"></span>
                         </button>
                         <div class="notification-dropdown" id="notification-dropdown">
                             <div class="notification-header">
-                                <h4>🔔 Notifications</h4>
+                                <h4><i data-lucide="bell" style="width:16px;height:16px;margin-right:6px"></i>
+                                    Notifications</h4>
                                 <div class="notif-header-actions">
                                     <span class="notif-count" id="notif-count">0 alerts</span>
                                     <a href="#" class="notif-clear-all" id="notif-clear-all"
@@ -134,73 +183,139 @@
                             </ul>
                         </div>
                     </div>
+                    <div class="profile-dropdown-container">
+                        <button class="profile-btn" id="profile-btn">
+                            <div class="profile-avatar" id="topbar-avatar">A</div>
+                            <i data-lucide="chevron-down"
+                                style="width:14px;height:14px;color:var(--text-secondary)"></i>
+                        </button>
+                        <div class="profile-dropdown" id="profile-dropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="profile-avatar-lg" id="profile-avatar-lg">A</div>
+                                <div>
+                                    <div class="profile-name" id="profile-name">User</div>
+                                    <div class="profile-role" id="profile-role">staff</div>
+                                </div>
+                            </div>
+                            <div class="profile-dropdown-divider"></div>
+                            <button class="profile-dropdown-item" onclick="logoutUser()">
+                                <i data-lucide="log-out" style="width:16px;height:16px"></i> Sign Out
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
 
             <!-- ═══ DASHBOARD PAGE ═══ -->
             <section id="page-dashboard" class="page active">
                 <div class="page-header">
-                    <h2>Dashboard Overview</h2>
-                    <p class="subtitle">Real-time campus store metrics</p>
+                    <div>
+                        <h2>Dashboard Overview</h2>
+                        <p class="subtitle">Real-time campus store metrics & insights</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-ghost" onclick="loadDashboard()">
+                            <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Refresh
+                        </button>
+                    </div>
                 </div>
 
                 <!-- KPI Cards -->
                 <div class="kpi-grid">
                     <div class="kpi-card kpi-products" id="kpi-products">
-                        <div class="kpi-icon">📦</div>
+                        <div class="kpi-icon-wrap kpi-icon-blue">
+                            <i data-lucide="package" class="kpi-icon-svg"></i>
+                        </div>
                         <div class="kpi-info">
                             <span class="kpi-value" id="stat-total-products">—</span>
                             <span class="kpi-label">Total Products</span>
                         </div>
                     </div>
-                    <div class="kpi-card kpi-batches" id="kpi-batches">
-                        <div class="kpi-icon">🏷️</div>
-                        <div class="kpi-info">
-                            <span class="kpi-value" id="stat-total-batches">—</span>
-                            <span class="kpi-label">Total Batches</span>
-                        </div>
-                    </div>
                     <div class="kpi-card kpi-revenue" id="kpi-revenue">
-                        <div class="kpi-icon">💰</div>
+                        <div class="kpi-icon-wrap kpi-icon-green">
+                            <i data-lucide="indian-rupee" class="kpi-icon-svg"></i>
+                        </div>
                         <div class="kpi-info">
                             <span class="kpi-value" id="stat-revenue">—</span>
                             <span class="kpi-label">Total Revenue</span>
                         </div>
                     </div>
-
+                    <div class="kpi-card kpi-stock" id="kpi-stock-dash">
+                        <div class="kpi-icon-wrap kpi-icon-cyan">
+                            <i data-lucide="wallet" class="kpi-icon-svg"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-value" id="stat-stock-value-dash">—</span>
+                            <span class="kpi-label">Stock Value</span>
+                        </div>
+                    </div>
                     <div class="kpi-card kpi-expiry" id="kpi-expiring">
-                        <div class="kpi-icon">⚠️</div>
+                        <div class="kpi-icon-wrap kpi-icon-yellow">
+                            <i data-lucide="alert-triangle" class="kpi-icon-svg"></i>
+                        </div>
                         <div class="kpi-info">
                             <span class="kpi-value" id="stat-expiring">—</span>
-                            <span class="kpi-label">At-Risk Batches</span>
+                            <span class="kpi-label">Expiring Soon</span>
                         </div>
                     </div>
                     <div class="kpi-card kpi-lowstock" id="kpi-lowstock">
-                        <div class="kpi-icon">📉</div>
+                        <div class="kpi-icon-wrap kpi-icon-orange">
+                            <i data-lucide="trending-down" class="kpi-icon-svg"></i>
+                        </div>
                         <div class="kpi-info">
                             <span class="kpi-value" id="stat-lowstock">—</span>
-                            <span class="kpi-label">Low Stock Items</span>
+                            <span class="kpi-label">Low Stock</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-wastage" id="kpi-wastage-dash">
+                        <div class="kpi-icon-wrap kpi-icon-red">
+                            <i data-lucide="trash-2" class="kpi-icon-svg"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-value" id="stat-wastage-dash">—</span>
+                            <span class="kpi-label">Wastage Loss</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Charts Row -->
                 <div class="charts-grid">
-                    <div class="chart-card full-width">
-                        <h3>Category Sales Distribution</h3>
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="pie-chart" style="width:18px;height:18px"></i> Category Sales</h3>
+                        </div>
                         <canvas id="chart-category-sales"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="activity" style="width:18px;height:18px"></i> Revenue vs Wastage</h3>
+                        </div>
+                        <canvas id="chart-revenue-trend"></canvas>
                     </div>
                 </div>
 
-                <!-- Alerts Section -->
-                <div class="alerts-grid">
+                <!-- Alerts + Recent Activity -->
+                <div class="dashboard-bottom-grid">
                     <div class="alert-card">
-                        <h3>🔴 Expiry Alerts</h3>
+                        <div class="alert-card-header">
+                            <h3><i data-lucide="alert-circle"
+                                    style="width:18px;height:18px;color:var(--accent-red)"></i> Expiry Alerts</h3>
+                        </div>
                         <div id="expiry-alerts-list" class="alert-list"></div>
                     </div>
                     <div class="alert-card">
-                        <h3>📉 Low Stock Alerts</h3>
+                        <div class="alert-card-header">
+                            <h3><i data-lucide="package-minus"
+                                    style="width:18px;height:18px;color:var(--accent-orange)"></i> Low Stock Alerts</h3>
+                        </div>
                         <div id="stock-alerts-list" class="alert-list"></div>
+                    </div>
+                    <div class="alert-card activity-card">
+                        <div class="alert-card-header">
+                            <h3><i data-lucide="clock" style="width:18px;height:18px;color:var(--accent-blue)"></i>
+                                Recent Activity</h3>
+                        </div>
+                        <div id="recent-activity-list" class="alert-list"></div>
                     </div>
                 </div>
             </section>
@@ -208,42 +323,54 @@
             <!-- ═══ INVENTORY PAGE ═══ -->
             <section id="page-inventory" class="page">
                 <div class="page-header">
-                    <h2>Inventory Management</h2>
+                    <div>
+                        <h2>Inventory Management</h2>
+                        <p class="subtitle">Manage your products and stock levels</p>
+                    </div>
                     <div class="page-actions">
                         <select id="category-filter" class="select-input">
                             <option value="">All Categories</option>
                         </select>
-                        <button id="btn-add-product" class="btn btn-primary">+ Add Product</button>
-                        <button class="btn btn-secondary" onclick="exportInventoryCSV()" style="margin-left:0.5rem">📥
-                            Export CSV</button>
+                        <button id="btn-add-product" class="btn btn-primary">
+                            <i data-lucide="plus" style="width:16px;height:16px"></i> Add Product
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportInventoryCSV()">
+                            <i data-lucide="download" style="width:16px;height:16px"></i> Export
+                        </button>
                     </div>
                 </div>
 
                 <!-- Barcode Scan Panel -->
                 <div class="inv-barcode-panel">
                     <div class="inv-barcode-left">
-                        <h3>📷 Scan Barcode to Add / Find Product</h3>
+                        <h3><i data-lucide="scan-barcode" style="width:18px;height:18px"></i> Scan Barcode to Add / Find
+                            Product</h3>
                         <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem">Scan a barcode to
-                            find
-                            an existing product or add a new one automatically.</p>
+                            find an existing product or add a new one automatically.</p>
                         <div id="inv-barcode-reader" class="inv-barcode-reader"></div>
                         <div class="scanner-controls" style="margin-top:0.75rem">
-                            <button id="btn-inv-start-scan" class="btn btn-primary btn-sm">📷 Start Scanner</button>
-                            <button id="btn-inv-stop-scan" class="btn btn-secondary btn-sm" disabled>⏹ Stop</button>
+                            <button id="btn-inv-start-scan" class="btn btn-primary btn-sm">
+                                <i data-lucide="camera" style="width:14px;height:14px"></i> Start Scanner
+                            </button>
+                            <button id="btn-inv-stop-scan" class="btn btn-secondary btn-sm" disabled>
+                                <i data-lucide="square" style="width:14px;height:14px"></i> Stop
+                            </button>
                         </div>
                         <div class="manual-barcode" style="margin-top:0.75rem">
                             <input type="text" id="inv-barcode-input" class="text-input"
                                 placeholder="Or type barcode / Item ID...">
-                            <button id="btn-inv-barcode-lookup" class="btn btn-primary btn-sm">🔍 Look Up</button>
+                            <button id="btn-inv-barcode-lookup" class="btn btn-primary btn-sm">
+                                <i data-lucide="search" style="width:14px;height:14px"></i> Look Up
+                            </button>
                         </div>
                     </div>
                     <div class="inv-barcode-result" id="inv-barcode-result">
                         <div class="placeholder-text" style="padding:2rem 1rem">
-                            <p style="font-size:1.5rem;margin-bottom:0.5rem">📦</p>
+                            <i data-lucide="package"
+                                style="width:40px;height:40px;opacity:0.3;margin-bottom:0.75rem"></i>
                             <p>Scan a barcode to see product info here.</p>
                             <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem">If the product
-                                doesn't
-                                exist, you'll be prompted to add it.</p>
+                                doesn't exist, you'll be prompted to add it.</p>
                         </div>
                     </div>
                 </div>
@@ -271,12 +398,15 @@
             <!-- ═══ EXPIRY MONITOR PAGE ═══ -->
             <section id="page-expiry" class="page">
                 <div class="page-header">
-                    <h2>Expiry Monitor</h2>
+                    <div>
+                        <h2>Expiry Tracker</h2>
+                        <p class="subtitle">Monitor batch expiration dates and reduce wastage</p>
+                    </div>
                     <div class="page-actions">
                         <div class="expiry-legend">
                             <span class="legend-item"><span class="dot dot-red"></span> Expired / ≤7 days</span>
                             <span class="legend-item"><span class="dot dot-yellow"></span> ≤15 days</span>
-                            <span class="legend-item"><span class="dot dot-green"></span> Fresh</span>
+                            <span class="legend-item"><span class="dot dot-green"></span> Safe</span>
                         </div>
                     </div>
                 </div>
@@ -300,20 +430,57 @@
                 </div>
             </section>
 
+            <!-- ═══ LOW STOCK PAGE ═══ -->
+            <section id="page-lowstock" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2>Low Stock Monitor</h2>
+                        <p class="subtitle">Track items below minimum stock threshold</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-ghost" onclick="loadLowStock()">
+                            <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="lowstock-stats" id="lowstock-stats"></div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Min Threshold</th>
+                                <th>Deficit</th>
+                                <th>Suggested Reorder</th>
+                                <th>Est. Stock-out</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lowstock-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- ═══ POS / SALES PAGE — THE PULSE ═══ -->
             <section id="page-pos" class="page">
                 <div class="page-header">
-                    <h2>⚡ The Pulse — Point of Sale</h2>
-                    <p class="subtitle">Smart Billing Terminal with Wastage-to-Offer Engine</p>
+                    <div>
+                        <h2>Point of Sale</h2>
+                        <p class="subtitle">Smart Billing Terminal with Flash Sale Engine</p>
+                    </div>
                 </div>
                 <div class="pulse-pos-grid">
                     <!-- LEFT: Scan & Add -->
                     <div class="pos-form-card">
-                        <h3>📷 Scan / Select Product</h3>
+                        <h3><i data-lucide="scan-barcode" style="width:18px;height:18px"></i> Scan / Select Product</h3>
                         <div class="manual-barcode" style="margin-bottom:1rem">
                             <input type="text" id="pos-barcode-input" class="text-input"
                                 placeholder="Scan barcode or type Item ID...">
-                            <button id="btn-pos-barcode-go" class="btn btn-primary btn-sm">🔍</button>
+                            <button id="btn-pos-barcode-go" class="btn btn-primary btn-sm">
+                                <i data-lucide="search" style="width:14px;height:14px"></i>
+                            </button>
                         </div>
                         <form id="pos-add-form">
                             <div class="form-group">
@@ -348,45 +515,41 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-full" style="margin-top:0.75rem">➕ Add to
-                                Cart</button>
+                            <button type="submit" class="btn btn-primary btn-full" style="margin-top:0.75rem">
+                                <i data-lucide="plus" style="width:16px;height:16px"></i> Add to Cart
+                            </button>
                         </form>
                     </div>
 
                     <!-- RIGHT: Cart & Checkout -->
                     <div class="pos-form-card">
-                        <h3>🧾 Current Cart</h3>
+                        <h3><i data-lucide="shopping-cart" style="width:18px;height:18px"></i> Current Cart</h3>
                         <div id="pos-cart" class="transaction-list" style="max-height:320px;overflow-y:auto">
                             <p class="placeholder-text" style="padding:1.5rem">Cart is empty — scan a barcode or select
-                                a
-                                product</p>
+                                a product</p>
                         </div>
                         <!-- Totals -->
-                        <div
-                            style="margin-top:1rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
-                            <div
-                                style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-secondary)">
+                        <div class="cart-totals">
+                            <div class="cart-total-row">
                                 <span>Items:</span><span id="cart-item-count">0</span>
                             </div>
-                            <div
-                                style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem">
+                            <div class="cart-total-row">
                                 <span>Total Qty:</span><span id="cart-total-qty">0</span>
                             </div>
-                            <div id="cart-savings-row"
-                                style="display:none;justify-content:space-between;font-size:0.85rem;color:var(--accent-orange);margin-top:0.25rem">
+                            <div id="cart-savings-row" class="cart-total-row savings" style="display:none">
                                 <span>⚡ Flash Sale Savings:</span><span id="cart-savings">₹0</span>
                             </div>
-                            <div
-                                style="display:flex;justify-content:space-between;font-size:1.3rem;font-weight:800;margin-top:0.5rem;color:var(--accent-green)">
+                            <div class="cart-total-row grand-total">
                                 <span>Total:</span><span id="cart-total-amount">₹0</span>
                             </div>
                         </div>
                         <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
-                            <button class="btn btn-danger btn-full" id="btn-clear-cart" style="flex:1" disabled>🗑
-                                Clear</button>
-                            <button class="btn btn-primary btn-full" id="btn-checkout" style="flex:2" disabled>💳
-                                Checkout &
-                                Print Receipt</button>
+                            <button class="btn btn-danger btn-full" id="btn-clear-cart" style="flex:1" disabled>
+                                <i data-lucide="trash-2" style="width:14px;height:14px"></i> Clear
+                            </button>
+                            <button class="btn btn-primary btn-full" id="btn-checkout" style="flex:2" disabled>
+                                <i data-lucide="credit-card" style="width:14px;height:14px"></i> Checkout & Print
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -400,7 +563,9 @@
                         <!-- Receipt printed here by JS -->
                     </div>
                     <div style="display:flex;gap:0.5rem;padding:0 1.5rem 1.5rem">
-                        <button class="btn btn-primary btn-full" id="btn-print-receipt">🖨 Print Receipt</button>
+                        <button class="btn btn-primary btn-full" id="btn-print-receipt">
+                            <i data-lucide="printer" style="width:14px;height:14px"></i> Print Receipt
+                        </button>
                         <button class="btn btn-secondary btn-full" id="btn-close-receipt">✕ Close</button>
                     </div>
                 </div>
@@ -409,21 +574,27 @@
             <!-- ═══ ANALYTICS PAGE ═══ -->
             <section id="page-analytics" class="page">
                 <div class="page-header">
-                    <h2>Analytics Dashboard</h2>
-                    <p class="subtitle">In-depth financial & inventory analytics</p>
+                    <div>
+                        <h2>Analytics Dashboard</h2>
+                        <p class="subtitle">In-depth financial & inventory analytics</p>
+                    </div>
                 </div>
 
                 <!-- Analytics KPI Cards -->
                 <div class="kpi-grid analytics-kpi-grid">
                     <div class="kpi-card kpi-stock" id="kpi-stock">
-                        <div class="kpi-icon">📋</div>
+                        <div class="kpi-icon-wrap kpi-icon-cyan">
+                            <i data-lucide="wallet" class="kpi-icon-svg"></i>
+                        </div>
                         <div class="kpi-info">
                             <span class="kpi-value" id="stat-stock-value">—</span>
                             <span class="kpi-label">Total Stock Value</span>
                         </div>
                     </div>
                     <div class="kpi-card kpi-wastage" id="kpi-wastage">
-                        <div class="kpi-icon">🗑️</div>
+                        <div class="kpi-icon-wrap kpi-icon-red">
+                            <i data-lucide="trash-2" class="kpi-icon-svg"></i>
+                        </div>
                         <div class="kpi-info">
                             <span class="kpi-value" id="stat-wastage">—</span>
                             <span class="kpi-label">Wastage Loss</span>
@@ -431,28 +602,29 @@
                     </div>
                 </div>
 
-                <!-- Revenue vs Wastage Chart (moved from Dashboard) -->
                 <div class="charts-grid" style="margin-top:1.5rem">
                     <div class="chart-card full-width">
-                        <h3>Revenue vs Wastage (30 Days)</h3>
-                        <canvas id="chart-revenue-trend"></canvas>
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="trending-up" style="width:18px;height:18px"></i> Revenue Timeline (30
+                                Days)</h3>
+                        </div>
+                        <canvas id="chart-revenue-line"></canvas>
                     </div>
                 </div>
 
                 <div class="charts-grid" style="margin-top:1.5rem">
                     <div class="chart-card">
-                        <h3>Category-wise Stock Value</h3>
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="bar-chart-3" style="width:18px;height:18px"></i> Category Stock Value
+                            </h3>
+                        </div>
                         <canvas id="chart-category-stock"></canvas>
                     </div>
                     <div class="chart-card">
-                        <h3>Wastage by Category</h3>
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="trash" style="width:18px;height:18px"></i> Wastage by Category</h3>
+                        </div>
                         <canvas id="chart-wastage"></canvas>
-                    </div>
-                </div>
-                <div class="charts-grid" style="margin-top:1.5rem">
-                    <div class="chart-card full-width">
-                        <h3>Revenue Timeline (30 Days)</h3>
-                        <canvas id="chart-revenue-line"></canvas>
                     </div>
                 </div>
             </section>
@@ -460,20 +632,28 @@
             <!-- ═══ BARCODE SCANNER PAGE ═══ -->
             <section id="page-scanner" class="page">
                 <div class="page-header">
-                    <h2>Barcode Scanner</h2>
-                    <p class="subtitle">Scan product barcodes using your webcam or look them up below</p>
+                    <div>
+                        <h2>Barcode Scanner</h2>
+                        <p class="subtitle">Scan product barcodes using your webcam or look them up below</p>
+                    </div>
                 </div>
                 <div class="scanner-layout">
                     <div class="scanner-card">
                         <div id="barcode-reader" class="barcode-reader"></div>
                         <div class="scanner-controls">
-                            <button id="btn-start-scan" class="btn btn-primary">📷 Start Scanner</button>
-                            <button id="btn-stop-scan" class="btn btn-secondary" disabled>⏹ Stop</button>
+                            <button id="btn-start-scan" class="btn btn-primary">
+                                <i data-lucide="camera" style="width:16px;height:16px"></i> Start Scanner
+                            </button>
+                            <button id="btn-stop-scan" class="btn btn-secondary" disabled>
+                                <i data-lucide="square" style="width:16px;height:16px"></i> Stop
+                            </button>
                         </div>
                         <div class="manual-barcode">
                             <input type="text" id="manual-barcode" class="text-input"
                                 placeholder="Enter barcode or item ID (e.g. 8900000000001)">
-                            <button id="btn-lookup-barcode" class="btn btn-primary">🔍 Look Up</button>
+                            <button id="btn-lookup-barcode" class="btn btn-primary">
+                                <i data-lucide="search" style="width:16px;height:16px"></i> Look Up
+                            </button>
                         </div>
                     </div>
                     <div class="scanner-result-card" id="scanner-result">
@@ -487,7 +667,9 @@
                 <!-- Product Barcode Directory -->
                 <div style="margin-top:1.5rem">
                     <div class="chart-card">
-                        <h3>📋 Product Barcode Directory</h3>
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="list" style="width:18px;height:18px"></i> Product Barcode Directory</h3>
+                        </div>
                         <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem">Click any barcode to
                             instantly look up the product.</p>
                         <div style="margin-bottom:1rem">
@@ -517,13 +699,18 @@
             <!-- ═══ ML INSIGHTS PAGE ═══ -->
             <section id="page-ml" class="page">
                 <div class="page-header">
-                    <h2>🤖 ML Seasonal Insights</h2>
-                    <p class="subtitle">AI-powered demand prediction based on sales data</p>
+                    <div>
+                        <h2>ML Insights</h2>
+                        <p class="subtitle">AI-powered demand prediction & inventory intelligence</p>
+                    </div>
                 </div>
                 <div id="ml-insights-container" class="ml-container">
                     <div class="charts-grid">
                         <div class="chart-card full-width">
-                            <h3>Seasonal Demand Predictions</h3>
+                            <div class="chart-card-header">
+                                <h3><i data-lucide="brain" style="width:18px;height:18px"></i> Seasonal Demand
+                                    Predictions</h3>
+                            </div>
                             <div class="ml-controls">
                                 <select id="ml-category-select" class="select-input">
                                     <option value="">All Categories</option>
@@ -533,14 +720,16 @@
                         </div>
                     </div>
 
-                    <!-- NEW: Purchase Order Drafts -->
+                    <!-- Purchase Order Drafts -->
                     <div class="po-drafts-section" style="margin-top:2rem;margin-bottom:2rem">
                         <div class="chart-card full-width">
-                            <h3 style="display:flex;align-items:center;gap:0.5rem">
-                                <span>📦 Automated Purchase Order Drafts</span>
-                                <span class="pulse-badge" style="font-size:0.6rem;padding:0.2rem 0.5rem">ML
-                                    POWERED</span>
-                            </h3>
+                            <div class="chart-card-header">
+                                <h3>
+                                    <i data-lucide="package" style="width:18px;height:18px"></i>
+                                    Automated Purchase Order Drafts
+                                    <span class="pulse-badge ml-badge">ML POWERED</span>
+                                </h3>
+                            </div>
                             <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem">
                                 Generated automatically when stock is predicted to run out within 48 hours based on
                                 real-time sales velocity.
@@ -553,6 +742,58 @@
                     </div>
 
                     <div class="ml-insights-grid" id="ml-insights-grid"></div>
+                </div>
+            </section>
+
+            <!-- ═══ REPORTS PAGE ═══ -->
+            <section id="page-reports" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2>Reports & Exports</h2>
+                        <p class="subtitle">Generate and download comprehensive reports</p>
+                    </div>
+                </div>
+                <div class="reports-grid">
+                    <div class="report-card" onclick="exportInventoryCSV()">
+                        <div class="report-icon-wrap report-icon-blue">
+                            <i data-lucide="package" style="width:28px;height:28px"></i>
+                        </div>
+                        <h3>Inventory Report</h3>
+                        <p>Complete list of all products, stock levels, and categories</p>
+                        <button class="btn btn-primary btn-sm">
+                            <i data-lucide="download" style="width:14px;height:14px"></i> Download CSV
+                        </button>
+                    </div>
+                    <div class="report-card" onclick="exportExpiryCSV()">
+                        <div class="report-icon-wrap report-icon-yellow">
+                            <i data-lucide="clock" style="width:28px;height:28px"></i>
+                        </div>
+                        <h3>Expiry Report</h3>
+                        <p>All batches with expiry dates, days left, and urgency status</p>
+                        <button class="btn btn-primary btn-sm">
+                            <i data-lucide="download" style="width:14px;height:14px"></i> Download CSV
+                        </button>
+                    </div>
+                    <div class="report-card" onclick="exportWastageCSV()">
+                        <div class="report-icon-wrap report-icon-red">
+                            <i data-lucide="trash-2" style="width:28px;height:28px"></i>
+                        </div>
+                        <h3>Wastage Report</h3>
+                        <p>Wastage transactions with reasons, quantities, and monetary loss</p>
+                        <button class="btn btn-primary btn-sm">
+                            <i data-lucide="download" style="width:14px;height:14px"></i> Download CSV
+                        </button>
+                    </div>
+                    <div class="report-card" onclick="exportSalesCSV()">
+                        <div class="report-icon-wrap report-icon-green">
+                            <i data-lucide="indian-rupee" style="width:28px;height:28px"></i>
+                        </div>
+                        <h3>Sales Report</h3>
+                        <p>All sales transactions including quantities, prices, and totals</p>
+                        <button class="btn btn-primary btn-sm">
+                            <i data-lucide="download" style="width:14px;height:14px"></i> Download CSV
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -613,12 +854,15 @@
             <!-- Restock Modal -->
             <div id="modal-restock" class="modal">
                 <div class="modal-content">
-                    <h3>Restock Item</h3>
+                    <div class="modal-header">
+                        <h3>Restock Item</h3>
+                        <button class="modal-close" onclick="closeRestockModal()">&times;</button>
+                    </div>
                     <input type="hidden" id="restock-product-id">
                     <div class="form-group">
                         <label>Product Name</label>
                         <input type="text" id="restock-product-name" disabled class="text-input"
-                            style="background:#2a2a40;color:#fff">
+                            style="background:var(--bg-secondary);color:var(--text-primary)">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -650,13 +894,16 @@
             <!-- Wastage Modal -->
             <div id="modal-wastage" class="modal">
                 <div class="modal-content">
-                    <h3>Mark as Wastage</h3>
+                    <div class="modal-header">
+                        <h3>Mark as Wastage</h3>
+                        <button class="modal-close" onclick="closeWastageModal()">&times;</button>
+                    </div>
                     <input type="hidden" id="wastage-batch-id">
                     <input type="hidden" id="wastage-product-id">
                     <div class="form-group">
                         <label>Product / Batch</label>
                         <input type="text" id="wastage-product-name" disabled class="text-input"
-                            style="background:#2a2a40;color:#fff">
+                            style="background:var(--bg-secondary);color:var(--text-primary)">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -687,6 +934,12 @@
     </div><!-- /app-container -->
 
     <script type="module" src="./app.js"></script>
+    <script>
+        // Initialize Lucide icons after DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 
 </html>

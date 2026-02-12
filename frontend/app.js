@@ -81,6 +81,7 @@ function showApp() {
 
     // Update sidebar user info
     if (currentUser) {
+        const initial = (currentUser.full_name || 'U')[0].toUpperCase();
         const nameEl = document.getElementById('sidebar-user-name');
         const roleEl = document.getElementById('sidebar-user-role');
         const avatarEl = document.getElementById('user-avatar');
@@ -89,7 +90,17 @@ function showApp() {
             roleEl.textContent = currentUser.role;
             roleEl.className = `user-role-badge ${currentUser.role}`;
         }
-        if (avatarEl) avatarEl.textContent = (currentUser.full_name || 'U')[0].toUpperCase();
+        if (avatarEl) avatarEl.textContent = initial;
+
+        // Sync topbar avatar + profile dropdown
+        const topAvatar = document.getElementById('topbar-avatar');
+        const profileAvatarLg = document.getElementById('profile-avatar-lg');
+        const profileName = document.getElementById('profile-name');
+        const profileRole = document.getElementById('profile-role');
+        if (topAvatar) topAvatar.textContent = initial;
+        if (profileAvatarLg) profileAvatarLg.textContent = initial;
+        if (profileName) profileName.textContent = currentUser.full_name;
+        if (profileRole) profileRole.textContent = currentUser.role;
 
         // Role-based visibility
         applyRolePermissions(currentUser.role);
@@ -166,6 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
 /** Initialize the main app (called once after first login) */
 function initApp() {
     initNavigation();
+    initSidebarCollapse();
+    initProfileDropdown();
     initClock();
     initSearch();
     initNotifications();
@@ -178,6 +191,36 @@ function initApp() {
 
     // ── Real-time Sync ──
     initBroadcastSync();
+}
+
+// ── Sidebar Collapse ──
+function initSidebarCollapse() {
+    const btn = document.getElementById('sidebar-collapse-btn');
+    const sidebar = document.getElementById('sidebar');
+    if (btn && sidebar) {
+        btn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            // Re-init lucide icons after DOM change
+            if (window.lucide) setTimeout(() => lucide.createIcons(), 50);
+        });
+    }
+}
+
+// ── Profile Dropdown ──
+function initProfileDropdown() {
+    const btn = document.getElementById('profile-btn');
+    const dropdown = document.getElementById('profile-dropdown');
+    if (btn && dropdown) {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+    }
 }
 
 // ── Broadcast Channel for Cross-Tab Sync ──
@@ -241,10 +284,12 @@ function switchPage(page) {
         case 'dashboard': loadDashboard(); break;
         case 'inventory': loadInventory(); break;
         case 'expiry': loadExpiry(); break;
+        case 'lowstock': loadLowStock(); break;
         case 'pos': loadPOS(); break;
         case 'analytics': loadAnalytics(); break;
         case 'scanner': loadBarcodeDirectory(); break;
         case 'ml': loadMLInsights(); break;
+        case 'reports': /* static page */ break;
     }
 }
 
@@ -578,9 +623,17 @@ function setKPIs(data) {
     safeAnimate('stat-total-batches', String(data.total_batches));
     safeAnimate('stat-revenue', formatCurrency(data.total_revenue), true);
     safeAnimate('stat-stock-value', formatCurrency(data.total_stock_value), true);
+    safeAnimate('stat-stock-value-dash', formatCurrency(data.total_stock_value), true);
     safeAnimate('stat-wastage', formatCurrency(data.total_wastage_loss), true);
+    safeAnimate('stat-wastage-dash', formatCurrency(data.total_wastage_loss), true);
     safeAnimate('stat-expiring', String(data.expiring_soon));
     safeAnimate('stat-lowstock', String(data.low_stock_count));
+
+    // Update nav badges
+    const expiryBadge = document.getElementById('nav-expiry-badge');
+    const lowstockBadge = document.getElementById('nav-lowstock-badge');
+    if (expiryBadge) expiryBadge.textContent = data.expiring_soon > 0 ? data.expiring_soon : '';
+    if (lowstockBadge) lowstockBadge.textContent = data.low_stock_count > 0 ? data.low_stock_count : '';
 }
 
 // ── Lightweight KPI-only refresh (fast polling) ──
@@ -619,14 +672,61 @@ async function loadDashboard() {
         // Stock alerts list
         renderStockAlerts(data.stock_alerts);
 
+        // Recent activity
+        renderRecentActivity(data);
+
         // Charts
         renderCategorySalesChart(data.category_sales);
+        loadRevenueTrend();
 
         // Start live polling for KPIs
         startKPIPolling();
     } catch (err) {
         console.error('Dashboard load error:', err);
     }
+}
+
+// ── Recent Activity Feed ──
+function renderRecentActivity(data) {
+    const list = document.getElementById('recent-activity-list');
+    if (!list) return;
+
+    const activities = [];
+
+    // Derive from expiry & stock alerts
+    if (data.expiry_alerts) {
+        data.expiry_alerts.slice(0, 5).forEach(a => {
+            activities.push({
+                type: a.status === 'expired' ? 'wastage' : 'restock',
+                text: `${a.product_name} — ${a.status === 'expired' ? 'Expired' : a.days_left + 'd to expiry'}`,
+                sub: `Batch ${a.batch_number} · ${a.quantity} units`
+            });
+        });
+    }
+    if (data.stock_alerts) {
+        data.stock_alerts.slice(0, 3).forEach(a => {
+            activities.push({
+                type: 'restock',
+                text: `${a.product_name} — Low stock`,
+                sub: `${a.current_stock} / ${a.min_stock} units`
+            });
+        });
+    }
+
+    if (activities.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem">No recent activity</p>';
+        return;
+    }
+
+    list.innerHTML = activities.map(a => `
+        <div class="activity-item">
+            <span class="activity-dot ${a.type}"></span>
+            <div style="flex:1">
+                <div style="font-weight:500;font-size:0.82rem">${a.text}</div>
+                <div style="font-size:0.72rem;color:var(--text-muted)">${a.sub}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function renderExpiryAlerts(alerts) {
@@ -2195,42 +2295,141 @@ async function submitWastage() {
 }
 
 function exportInventoryCSV() {
-    if (!window.productsCache || !window.productsCache.length) {
-        // Try direct fetch if cache empty
+    if (!productsCache || !productsCache.length) {
         apiFetch('/api/products').then(products => {
-            window.productsCache = products;
+            productsCache = products;
             exportInventoryCSV();
         }).catch(() => showToast('No data to export', 'error'));
         return;
     }
 
     let csv = 'Item ID,Name,Category,MRP,Stock,Min Stock,Status\n';
-    window.productsCache.forEach(p => {
+    productsCache.forEach(p => {
         const stockStatus = p.total_stock < p.min_stock ? 'Low' : 'OK';
-        // Escape quotes in name
         const safeName = (p.name || '').replace(/"/g, '""');
         csv += `${p.item_id},"${safeName}",${p.category},${p.mrp},${p.total_stock},${p.min_stock},${stockStatus}\n`;
     });
 
+    downloadCSV(csv, `inventory_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    showToast('Inventory report downloaded', 'success');
+}
+
+function exportExpiryCSV() {
+    apiFetch('/api/batches/expiring?days=365').then(alerts => {
+        let csv = 'Product,Batch,Expiry Date,Days Left,Status,Quantity\n';
+        alerts.forEach(a => {
+            const safeName = (a.product_name || '').replace(/"/g, '""');
+            csv += `"${safeName}",${a.batch_number},${a.expiry_date},${a.days_left},${a.status},${a.quantity}\n`;
+        });
+        downloadCSV(csv, `expiry_report_${new Date().toISOString().slice(0, 10)}.csv`);
+        showToast('Expiry report downloaded', 'success');
+    }).catch(() => showToast('Failed to export expiry data', 'error'));
+}
+
+function exportWastageCSV() {
+    apiFetch('/api/analytics/wastage').then(data => {
+        let csv = 'Category,Wastage Units,Total Loss (INR)\n';
+        data.forEach(d => {
+            csv += `${d.category},${d.total_units || 0},${d.total_loss}\n`;
+        });
+        downloadCSV(csv, `wastage_report_${new Date().toISOString().slice(0, 10)}.csv`);
+        showToast('Wastage report downloaded', 'success');
+    }).catch(() => showToast('Failed to export wastage data', 'error'));
+}
+
+function exportSalesCSV() {
+    apiFetch('/api/analytics/revenue?days=30').then(data => {
+        let csv = 'Date,Revenue (INR),Wastage (INR),Net (INR)\n';
+        data.forEach(d => {
+            csv += `${d.date},${d.revenue},${d.wastage},${d.net}\n`;
+        });
+        downloadCSV(csv, `sales_report_${new Date().toISOString().slice(0, 10)}.csv`);
+        showToast('Sales report downloaded', 'success');
+    }).catch(() => showToast('Failed to export sales data', 'error'));
+}
+
+function downloadCSV(csv, filename) {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `inventory_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     setTimeout(() => document.body.removeChild(a), 100);
 }
 
+// ═══════════════════════════════════════
+// LOW STOCK PAGE
+// ═══════════════════════════════════════
+
+async function loadLowStock() {
+    try {
+        const products = await apiFetch('/api/products');
+        productsCache = products;
+        const lowItems = products.filter(p => p.total_stock < p.min_stock);
+
+        // Stats
+        const totalLow = lowItems.length;
+        const outOfStock = lowItems.filter(p => p.total_stock === 0).length;
+        const criticalLow = lowItems.filter(p => p.total_stock > 0 && p.total_stock <= p.min_stock * 0.5).length;
+
+        const statsEl = document.getElementById('lowstock-stats');
+        if (statsEl) {
+            statsEl.innerHTML = `
+                <div class="expiry-stat-card">
+                    <span class="stat-number" style="color:var(--accent-orange)">${totalLow}</span>
+                    <span class="stat-label">Total Low Stock</span>
+                </div>
+                <div class="expiry-stat-card">
+                    <span class="stat-number" style="color:var(--accent-red)">${outOfStock}</span>
+                    <span class="stat-label">Out of Stock</span>
+                </div>
+                <div class="expiry-stat-card">
+                    <span class="stat-number" style="color:var(--accent-yellow)">${criticalLow}</span>
+                    <span class="stat-label">Critical (&lt;50%)</span>
+                </div>
+            `;
+        }
+
+        // Table
+        const tbody = document.getElementById('lowstock-tbody');
+        if (tbody) {
+            tbody.innerHTML = lowItems.map(p => {
+                const deficit = p.min_stock - p.total_stock;
+                const suggestedReorder = Math.max(deficit, p.min_stock);
+                const estDays = p.total_stock > 0 ? Math.ceil(p.total_stock / 2) : 0; // rough estimate
+                return `<tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.category}</td>
+                    <td><span style="color:${p.total_stock === 0 ? 'var(--accent-red)' : 'var(--accent-orange)'};font-weight:700">${p.total_stock}</span></td>
+                    <td>${p.min_stock}</td>
+                    <td><span style="color:var(--accent-red);font-weight:600">−${deficit}</span></td>
+                    <td><span class="restock-po">${suggestedReorder} units</span></td>
+                    <td>${p.total_stock === 0 ? '<span style="color:var(--accent-red);font-weight:700">NOW</span>' : `~${estDays}d`}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="showRestockModal(${p.id}, '${p.name.replace(/'/g, "\\'")}')">📦 Restock</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+    } catch (err) {
+        console.error('Low stock load error:', err);
+    }
+}
+
 // Expose functions to window for onclick handlers (Vite module scope issue fix)
 window.exportInventoryCSV = exportInventoryCSV;
+window.exportExpiryCSV = exportExpiryCSV;
+window.exportWastageCSV = exportWastageCSV;
+window.exportSalesCSV = exportSalesCSV;
 window.closeRestockModal = closeRestockModal;
 window.submitRestock = submitRestock;
 window.closeWastageModal = closeWastageModal;
 window.submitWastage = submitWastage;
 window.clearAllNotifications = clearAllNotifications;
-
+window.loadLowStock = loadLowStock;
 
 // Auto-exposed functions for HTML event handlers
 window.animateValue = animateValue;
@@ -2302,3 +2501,4 @@ window.stopScanner = stopScanner;
 window.switchPage = switchPage;
 window.updateNotifications = updateNotifications;
 window.viewBatches = viewBatches;
+window.renderRecentActivity = renderRecentActivity;

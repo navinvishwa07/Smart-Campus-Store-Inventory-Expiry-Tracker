@@ -96,9 +96,12 @@ def startup():
 
 
 # ──── Serve Frontend ────
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-if os.path.isdir(frontend_dir):
-    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+_base = os.path.dirname(os.path.dirname(__file__))
+_dist_dir = os.path.join(_base, "frontend", "dist")
+_frontend_dir = os.path.join(_base, "frontend")
+
+# Prefer built dist (Vite production build), fall back to raw frontend
+frontend_dir = _dist_dir if os.path.isdir(_dist_dir) else _frontend_dir
 
 
 @app.get("/")
@@ -107,6 +110,9 @@ def root():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": "Smart Campus Store API", "docs": "/docs"}
+
+
+# Mount static AFTER the API routes (order matters)  — see below after all @app routes
 
 
 # ═══════════════════════════════════════════════════
@@ -916,3 +922,8 @@ def list_categories(db: Session = Depends(get_db)):
     """List all unique categories."""
     cats = db.query(Product.category).distinct().all()
     return [c[0] for c in cats]
+
+
+# ──── Mount Static Files (MUST be after all API routes) ────
+if os.path.isdir(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir), name="static")
