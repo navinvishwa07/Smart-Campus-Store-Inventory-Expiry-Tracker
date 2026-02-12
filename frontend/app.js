@@ -421,13 +421,17 @@ function animateValue(el, newText, isCurrency = false) {
 
 // ── Apply KPI values with animation ──
 function setKPIs(data) {
-    animateValue(document.getElementById('stat-total-products'), String(data.total_products));
-    animateValue(document.getElementById('stat-total-batches'), String(data.total_batches));
-    animateValue(document.getElementById('stat-revenue'), formatCurrency(data.total_revenue), true);
-    animateValue(document.getElementById('stat-stock-value'), formatCurrency(data.total_stock_value), true);
-    animateValue(document.getElementById('stat-wastage'), formatCurrency(data.total_wastage_loss), true);
-    animateValue(document.getElementById('stat-expiring'), String(data.expiring_soon));
-    animateValue(document.getElementById('stat-lowstock'), String(data.low_stock_count));
+    const safeAnimate = (id, text, isCurrency = false) => {
+        const el = document.getElementById(id);
+        if (el) animateValue(el, text, isCurrency);
+    };
+    safeAnimate('stat-total-products', String(data.total_products));
+    safeAnimate('stat-total-batches', String(data.total_batches));
+    safeAnimate('stat-revenue', formatCurrency(data.total_revenue), true);
+    safeAnimate('stat-stock-value', formatCurrency(data.total_stock_value), true);
+    safeAnimate('stat-wastage', formatCurrency(data.total_wastage_loss), true);
+    safeAnimate('stat-expiring', String(data.expiring_soon));
+    safeAnimate('stat-lowstock', String(data.low_stock_count));
 }
 
 // ── Lightweight KPI-only refresh (fast polling) ──
@@ -468,7 +472,6 @@ async function loadDashboard() {
 
         // Charts
         renderCategorySalesChart(data.category_sales);
-        loadRevenueTrend();
 
         // Start live polling for KPIs
         startKPIPolling();
@@ -1421,6 +1424,13 @@ function generateReceipt(items) {
 // ═══════════════════════════════════════
 
 async function loadAnalytics() {
+    // Load KPI data for the analytics cards (stock value & wastage loss)
+    try {
+        const data = await apiFetch('/api/dashboard/kpi');
+        setKPIs(data);
+    } catch (e) { /* silent */ }
+
+    loadRevenueTrend();
     loadCategoryStockChart();
     loadWastageChart();
     loadRevenueLineChart();

@@ -684,6 +684,12 @@ body {
     font-weight: 500;
 }
 
+/* ─── Analytics KPI Grid ─── */
+.analytics-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+}
+
 /* ─── CHARTS ─── */
 .charts-grid {
     display: grid;

@@ -114,20 +114,7 @@
                         <span class="kpi-label">Total Revenue</span>
                     </div>
                 </div>
-                <div class="kpi-card kpi-stock" id="kpi-stock">
-                    <div class="kpi-icon">📋</div>
-                    <div class="kpi-info">
-                        <span class="kpi-value" id="stat-stock-value">—</span>
-                        <span class="kpi-label">Stock Value</span>
-                    </div>
-                </div>
-                <div class="kpi-card kpi-wastage" id="kpi-wastage">
-                    <div class="kpi-icon">🗑️</div>
-                    <div class="kpi-info">
-                        <span class="kpi-value" id="stat-wastage">—</span>
-                        <span class="kpi-label">Wastage Loss</span>
-                    </div>
-                </div>
+
                 <div class="kpi-card kpi-expiry" id="kpi-expiring">
                     <div class="kpi-icon">⚠️</div>
                     <div class="kpi-info">
@@ -146,13 +133,9 @@
 
             <!-- Charts Row -->
             <div class="charts-grid">
-                <div class="chart-card">
+                <div class="chart-card full-width">
                     <h3>Category Sales Distribution</h3>
                     <canvas id="chart-category-sales"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Revenue vs Wastage (30 Days)</h3>
-                    <canvas id="chart-revenue-trend"></canvas>
                 </div>
             </div>
 
@@ -369,8 +352,36 @@
         <section id="page-analytics" class="page">
             <div class="page-header">
                 <h2>Analytics Dashboard</h2>
+                <p class="subtitle">In-depth financial & inventory analytics</p>
             </div>
-            <div class="charts-grid">
+
+            <!-- Analytics KPI Cards -->
+            <div class="kpi-grid analytics-kpi-grid">
+                <div class="kpi-card kpi-stock" id="kpi-stock">
+                    <div class="kpi-icon">📋</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-stock-value">—</span>
+                        <span class="kpi-label">Total Stock Value</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-wastage" id="kpi-wastage">
+                    <div class="kpi-icon">🗑️</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-wastage">—</span>
+                        <span class="kpi-label">Wastage Loss</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue vs Wastage Chart (moved from Dashboard) -->
+            <div class="charts-grid" style="margin-top:1.5rem">
+                <div class="chart-card full-width">
+                    <h3>Revenue vs Wastage (30 Days)</h3>
+                    <canvas id="chart-revenue-trend"></canvas>
+                </div>
+            </div>
+
+            <div class="charts-grid" style="margin-top:1.5rem">
                 <div class="chart-card">
                     <h3>Category-wise Stock Value</h3>
                     <canvas id="chart-category-stock"></canvas>
