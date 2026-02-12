@@ -7,6 +7,118 @@
 const API = (import.meta && import.meta.env && import.meta.env.VITE_API_URL) ? import.meta.env.VITE_API_URL : '';
 
 // ═══════════════════════════════════════
+// AUTH STATE & HELPERS
+// ═══════════════════════════════════════
+
+let authToken = localStorage.getItem('auth_token') || null;
+let currentUser = JSON.parse(localStorage.getItem('auth_user') || 'null');
+
+/** Get headers with auth token */
+function authHeaders(extra = {}) {
+    const headers = { 'Content-Type': 'application/json', ...extra };
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+    return headers;
+}
+
+/** Login handler */
+async function handleLogin(username, password) {
+    const errorEl = document.getElementById('login-error');
+    const btnText = document.querySelector('.login-btn-text');
+    const btnSpinner = document.querySelector('.login-btn-spinner');
+    const loginBtn = document.getElementById('login-btn');
+
+    errorEl.style.display = 'none';
+    btnText.style.display = 'none';
+    btnSpinner.style.display = 'inline';
+    loginBtn.disabled = true;
+
+    try {
+        const res = await fetch(`${API}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.detail || 'Login failed');
+        }
+
+        const data = await res.json();
+        authToken = data.access_token;
+        currentUser = data.user;
+        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('auth_user', JSON.stringify(currentUser));
+
+        showApp();
+    } catch (err) {
+        errorEl.textContent = err.message || 'Connection error';
+        errorEl.style.display = 'block';
+    } finally {
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+        loginBtn.disabled = false;
+    }
+}
+
+/** Logout */
+window.logoutUser = function () {
+    authToken = null;
+    currentUser = null;
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    document.getElementById('login-overlay').classList.remove('hidden');
+    document.getElementById('app-container').style.display = 'none';
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').style.display = 'none';
+};
+
+/** Show the main app after successful login */
+function showApp() {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('app-container').style.display = '';
+
+    // Update sidebar user info
+    if (currentUser) {
+        const nameEl = document.getElementById('sidebar-user-name');
+        const roleEl = document.getElementById('sidebar-user-role');
+        const avatarEl = document.getElementById('user-avatar');
+        if (nameEl) nameEl.textContent = currentUser.full_name;
+        if (roleEl) {
+            roleEl.textContent = currentUser.role;
+            roleEl.className = `user-role-badge ${currentUser.role}`;
+        }
+        if (avatarEl) avatarEl.textContent = (currentUser.full_name || 'U')[0].toUpperCase();
+
+        // Role-based visibility
+        applyRolePermissions(currentUser.role);
+    }
+
+    // Initialize app only once
+    if (!window._appInitialized) {
+        window._appInitialized = true;
+        initApp();
+    } else {
+        // Refresh data on re-login
+        loadDashboard();
+    }
+}
+
+/** Hide/show elements based on role */
+function applyRolePermissions(role) {
+    // Admin-only elements get 'staff-hidden' class when user is staff
+    const adminOnlyIds = ['btn-add-product'];
+    adminOnlyIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            if (role === 'staff') el.classList.add('staff-hidden');
+            else el.classList.remove('staff-hidden');
+        }
+    });
+}
+
+// ═══════════════════════════════════════
 // STATE & INIT
 // ═══════════════════════════════════════
 
@@ -17,6 +129,42 @@ let productsCache = [];
 let _dashboardStale = false;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Setup login form
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (username && password) handleLogin(username, password);
+        });
+    }
+
+    // Check if already logged in
+    if (authToken && currentUser) {
+        // Verify token is still valid
+        fetch(`${API}/api/auth/me`, { headers: authHeaders() })
+            .then(res => {
+                if (res.ok) return res.json();
+                throw new Error('Token expired');
+            })
+            .then(user => {
+                currentUser = user;
+                localStorage.setItem('auth_user', JSON.stringify(user));
+                showApp();
+            })
+            .catch(() => {
+                // Token invalid — show login
+                authToken = null;
+                currentUser = null;
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('auth_user');
+            });
+    }
+});
+
+/** Initialize the main app (called once after first login) */
+function initApp() {
     initNavigation();
     initClock();
     initSearch();
@@ -30,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Real-time Sync ──
     initBroadcastSync();
-});
+}
 
 // ── Broadcast Channel for Cross-Tab Sync ──
 const appBus = new BroadcastChannel('app_sync');

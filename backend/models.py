@@ -12,6 +12,24 @@ from backend.database import Base
 import enum
 
 
+class UserRole(str, enum.Enum):
+    ADMIN = "admin"
+    STAFF = "staff"
+
+
+class User(Base):
+    """Application users with role-based access."""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(255), nullable=False)
+    full_name = Column(String(100), nullable=False)
+    role = Column(String(20), nullable=False, default="staff")
+    is_active = Column(Integer, default=1)
+    created_at = Column(DateTime, server_default=func.now())
+
+
 class ItemCategory(str, enum.Enum):
     SOFT_DRINKS = "Soft Drinks"
     CANNED = "Canned"

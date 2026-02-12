@@ -10,10 +10,11 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc, and_, case, literal
 from datetime import date, datetime, timedelta
 from typing import List, Optional
+from pydantic import BaseModel
 import os
 
 from backend.database import get_db, init_db
-from backend.models import Product, Batch, Transaction
+from backend.models import Product, Batch, Transaction, User
 from backend.schemas import (
     ProductCreate, ProductUpdate, ProductResponse,
     BatchCreate, BatchInfo,
@@ -24,6 +25,10 @@ from backend.schemas import (
 )
 from backend.models import Product, Batch, Transaction, Supplier, PurchaseOrder
 from backend.ml_engine import seasonal_analyzer
+from backend.auth import (
+    verify_password, hash_password, create_access_token,
+    get_current_user, require_admin, seed_default_users,
+)
 
 app = FastAPI(
     title="Smart Campus Store API",
@@ -81,6 +86,14 @@ def startup():
     except Exception as e:
         print(f"Seed note: {e}")
 
+    # Seed default admin/staff users
+    try:
+        db = next(get_db())
+        seed_default_users(db)
+        db.close()
+    except Exception as e:
+        print(f"User seed note: {e}")
+
 
 # ──── Serve Frontend ────
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
@@ -94,6 +107,91 @@ def root():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": "Smart Campus Store API", "docs": "/docs"}
+
+
+# ═══════════════════════════════════════════════════
+# AUTHENTICATION
+# ═══════════════════════════════════════════════════
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    full_name: str
+    role: str = "staff"
+
+
+@app.post("/api/auth/login")
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    """Authenticate user and return JWT token."""
+    user = db.query(User).filter(User.username == req.username).first()
+    if not user or not verify_password(req.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Account is disabled")
+
+    token = create_access_token(data={"sub": user.username, "role": user.role})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "role": user.role,
+        },
+    }
+
+
+@app.get("/api/auth/me")
+def get_me(current_user: User = Depends(get_current_user)):
+    """Return current authenticated user info."""
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "full_name": current_user.full_name,
+        "role": current_user.role,
+    }
+
+
+@app.get("/api/auth/users")
+def list_users(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    """List all users (admin only)."""
+    users = db.query(User).all()
+    return [
+        {
+            "id": u.id,
+            "username": u.username,
+            "full_name": u.full_name,
+            "role": u.role,
+            "is_active": bool(u.is_active),
+        }
+        for u in users
+    ]
+
+
+@app.post("/api/auth/users")
+def create_user(req: UserCreate, db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    """Create a new user (admin only)."""
+    existing = db.query(User).filter(User.username == req.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    if req.role not in ("admin", "staff"):
+        raise HTTPException(status_code=400, detail="Role must be 'admin' or 'staff'")
+    new_user = User(
+        username=req.username,
+        hashed_password=hash_password(req.password),
+        full_name=req.full_name,
+        role=req.role,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"id": new_user.id, "username": new_user.username, "role": new_user.role}
 
 
 # ═══════════════════════════════════════════════════
