@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     root: '.', // Use current directory as root
     build: {
-        outDir: '../dist', // Output to dist in project root
+        outDir: 'dist', // Output to dist inside frontend/ (required for Vercel)
         emptyOutDir: true,
     },
     server: {
