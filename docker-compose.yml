@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  campus-store:
+    build: .
+    container_name: campus-store-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - db-data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./campus_store.db
+    restart: unless-stopped
+
+volumes:
+  db-data:

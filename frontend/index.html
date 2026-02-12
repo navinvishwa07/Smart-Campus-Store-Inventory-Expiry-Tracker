@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Smart Campus Store Inventory & Expiry Tracker — Real-time dashboard for managing campus store inventory, expiry monitoring, and revenue analytics.">
+    <title>Smart Campus Store — Inventory & Expiry Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <!-- ─── Sidebar Nav ─── -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">🏪</div>
+            <h1>Campus<span>Store</span></h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="nav-link active" data-page="dashboard" id="nav-dashboard">
+                    <span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>
+                </a></li>
+            <li><a href="#" class="nav-link" data-page="inventory" id="nav-inventory">
+                    <span class="nav-icon">📦</span><span class="nav-text">Inventory</span>
+                </a></li>
+            <li><a href="#" class="nav-link" data-page="expiry" id="nav-expiry">
+                    <span class="nav-icon">⏰</span><span class="nav-text">Expiry Monitor</span>
+                </a></li>
+            <li><a href="#" class="nav-link" data-page="pos" id="nav-pos">
+                    <span class="nav-icon">💳</span><span class="nav-text">POS / Sales</span>
+                </a></li>
+            <li><a href="#" class="nav-link" data-page="analytics" id="nav-analytics">
+                    <span class="nav-icon">📈</span><span class="nav-text">Analytics</span>
+                </a></li>
+            <li><a href="#" class="nav-link" data-page="scanner" id="nav-scanner">
+                    <span class="nav-icon">📷</span><span class="nav-text">Barcode Scan</span>
+                </a></li>
+            <li><a href="#" class="nav-link" data-page="ml" id="nav-ml">
+                    <span class="nav-icon">🤖</span><span class="nav-text">ML Insights</span>
+                </a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <span>v1.0.0 — Team Project</span>
+        </div>
+    </nav>
+
+    <!-- ─── Main Content ─── -->
+    <main id="main-content" class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button id="menu-toggle" class="menu-toggle">☰</button>
+            <div class="topbar-search">
+                <input type="text" id="global-search" placeholder="Search products, barcodes..." autocomplete="off">
+            </div>
+            <div class="topbar-actions">
+                <span id="current-time" class="clock"></span>
+                <div class="notification-container">
+                    <button class="notification-bell" id="notification-bell" aria-label="Notifications">
+                        🔔 <span class="badge" id="alert-badge"></span>
+                    </button>
+                    <div class="notification-dropdown" id="notification-dropdown">
+                        <div class="notification-header">
+                            <h4>🔔 Notifications</h4>
+                            <div class="notif-header-actions">
+                                <span class="notif-count" id="notif-count">0 alerts</span>
+                                <a href="#" class="notif-clear-all" id="notif-clear-all"
+                                    onclick="event.preventDefault(); clearAllNotifications();">Clear all</a>
+                            </div>
+                        </div>
+                        <ul class="notification-list" id="notification-list">
+                            <li class="empty-state">
+                                <span class="notif-empty-icon">🎉</span>
+                                No new alerts — all clear!
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══ DASHBOARD PAGE ═══ -->
+        <section id="page-dashboard" class="page active">
+            <div class="page-header">
+                <h2>Dashboard Overview</h2>
+                <p class="subtitle">Real-time campus store metrics</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-products" id="kpi-products">
+                    <div class="kpi-icon">📦</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-total-products">—</span>
+                        <span class="kpi-label">Total Products</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-batches" id="kpi-batches">
+                    <div class="kpi-icon">🏷️</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-total-batches">—</span>
+                        <span class="kpi-label">Total Batches</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-revenue" id="kpi-revenue">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-revenue">—</span>
+                        <span class="kpi-label">Total Revenue</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-stock" id="kpi-stock">
+                    <div class="kpi-icon">📋</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-stock-value">—</span>
+                        <span class="kpi-label">Stock Value</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-wastage" id="kpi-wastage">
+                    <div class="kpi-icon">🗑️</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-wastage">—</span>
+                        <span class="kpi-label">Wastage Loss</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-expiry" id="kpi-expiring">
+                    <div class="kpi-icon">⚠️</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-expiring">—</span>
+                        <span class="kpi-label">At-Risk Batches</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-lowstock" id="kpi-lowstock">
+                    <div class="kpi-icon">📉</div>
+                    <div class="kpi-info">
+                        <span class="kpi-value" id="stat-lowstock">—</span>
+                        <span class="kpi-label">Low Stock Items</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Category Sales Distribution</h3>
+                    <canvas id="chart-category-sales"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Revenue vs Wastage (30 Days)</h3>
+                    <canvas id="chart-revenue-trend"></canvas>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-grid">
+                <div class="alert-card">
+                    <h3>🔴 Expiry Alerts</h3>
+                    <div id="expiry-alerts-list" class="alert-list"></div>
+                </div>
+                <div class="alert-card">
+                    <h3>📉 Low Stock Alerts</h3>
+                    <div id="stock-alerts-list" class="alert-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ INVENTORY PAGE ═══ -->
+        <section id="page-inventory" class="page">
+            <div class="page-header">
+                <h2>Inventory Management</h2>
+                <div class="page-actions">
+                    <select id="category-filter" class="select-input">
+                        <option value="">All Categories</option>
+                    </select>
+                    <button id="btn-add-product" class="btn btn-primary">+ Add Product</button>
+                    <button class="btn btn-secondary" onclick="exportInventoryCSV()" style="margin-left:0.5rem">📥
+                        Export CSV</button>
+                </div>
+            </div>
+
+            <!-- Barcode Scan Panel -->
+            <div class="inv-barcode-panel">
+                <div class="inv-barcode-left">
+                    <h3>📷 Scan Barcode to Add / Find Product</h3>
+                    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem">Scan a barcode to find
+                        an existing product or add a new one automatically.</p>
+                    <div id="inv-barcode-reader" class="inv-barcode-reader"></div>
+                    <div class="scanner-controls" style="margin-top:0.75rem">
+                        <button id="btn-inv-start-scan" class="btn btn-primary btn-sm">📷 Start Scanner</button>
+                        <button id="btn-inv-stop-scan" class="btn btn-secondary btn-sm" disabled>⏹ Stop</button>
+                    </div>
+                    <div class="manual-barcode" style="margin-top:0.75rem">
+                        <input type="text" id="inv-barcode-input" class="text-input"
+                            placeholder="Or type barcode / Item ID...">
+                        <button id="btn-inv-barcode-lookup" class="btn btn-primary btn-sm">🔍 Look Up</button>
+                    </div>
+                </div>
+                <div class="inv-barcode-result" id="inv-barcode-result">
+                    <div class="placeholder-text" style="padding:2rem 1rem">
+                        <p style="font-size:1.5rem;margin-bottom:0.5rem">📦</p>
+                        <p>Scan a barcode to see product info here.</p>
+                        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem">If the product doesn't
+                            exist, you'll be prompted to add it.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="inventory-table" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Barcode</th>
+                            <th>MRP (₹)</th>
+                            <th>Stock</th>
+                            <th>Min Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══ EXPIRY MONITOR PAGE ═══ -->
+        <section id="page-expiry" class="page">
+            <div class="page-header">
+                <h2>Expiry Monitor</h2>
+                <div class="page-actions">
+                    <div class="expiry-legend">
+                        <span class="legend-item"><span class="dot dot-red"></span> Expired / ≤7 days</span>
+                        <span class="legend-item"><span class="dot dot-yellow"></span> ≤15 days</span>
+                        <span class="legend-item"><span class="dot dot-green"></span> Fresh</span>
+                    </div>
+                </div>
+            </div>
+            <div class="expiry-stats" id="expiry-stats"></div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Product</th>
+                            <th>Batch #</th>
+                            <th>Expiry Date</th>
+                            <th>Days Left</th>
+                            <th>Qty</th>
+                            <th>Restock ETA</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiry-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══ POS / SALES PAGE — THE PULSE ═══ -->
+        <section id="page-pos" class="page">
+            <div class="page-header">
+                <h2>⚡ The Pulse — Point of Sale</h2>
+                <p class="subtitle">Smart Billing Terminal with Wastage-to-Offer Engine</p>
+            </div>
+            <div class="pulse-pos-grid">
+                <!-- LEFT: Scan & Add -->
+                <div class="pos-form-card">
+                    <h3>📷 Scan / Select Product</h3>
+                    <div class="manual-barcode" style="margin-bottom:1rem">
+                        <input type="text" id="pos-barcode-input" class="text-input"
+                            placeholder="Scan barcode or type Item ID...">
+                        <button id="btn-pos-barcode-go" class="btn btn-primary btn-sm">🔍</button>
+                    </div>
+                    <form id="pos-add-form">
+                        <div class="form-group">
+                            <label for="pos-product">Or Select Product</label>
+                            <select id="pos-product" class="select-input" required></select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pos-qty">Qty</label>
+                                <input type="number" id="pos-qty" min="1" value="1" class="text-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pos-price">Unit Price (₹)</label>
+                                <input type="number" id="pos-price" step="0.01" class="text-input" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Pulse Discount Info -->
+                        <div id="pulse-info" class="pulse-info-panel" style="display:none">
+                            <div class="pulse-badge">⚡ FLASH SALE</div>
+                            <div class="pulse-details">
+                                <span id="pulse-reason">Near-expiry discount</span>
+                                <div style="margin-top:0.5rem">
+                                    <span style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem"
+                                        id="pulse-original-price"></span>
+                                    <span
+                                        style="color:var(--accent-green);font-weight:800;font-size:1.1rem;margin-left:0.5rem"
+                                        id="pulse-discount-price"></span>
+                                    <span class="pulse-pct-badge" id="pulse-pct-badge">−20%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full" style="margin-top:0.75rem">➕ Add to
+                            Cart</button>
+                    </form>
+                </div>
+
+                <!-- RIGHT: Cart & Checkout -->
+                <div class="pos-form-card">
+                    <h3>🧾 Current Cart</h3>
+                    <div id="pos-cart" class="transaction-list" style="max-height:320px;overflow-y:auto">
+                        <p class="placeholder-text" style="padding:1.5rem">Cart is empty — scan a barcode or select a
+                            product</p>
+                    </div>
+                    <!-- Totals -->
+                    <div
+                        style="margin-top:1rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-secondary)">
+                            <span>Items:</span><span id="cart-item-count">0</span>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem">
+                            <span>Total Qty:</span><span id="cart-total-qty">0</span>
+                        </div>
+                        <div id="cart-savings-row"
+                            style="display:none;justify-content:space-between;font-size:0.85rem;color:var(--accent-orange);margin-top:0.25rem">
+                            <span>⚡ Flash Sale Savings:</span><span id="cart-savings">₹0</span>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:1.3rem;font-weight:800;margin-top:0.5rem;color:var(--accent-green)">
+                            <span>Total:</span><span id="cart-total-amount">₹0</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+                        <button class="btn btn-danger btn-full" id="btn-clear-cart" style="flex:1" disabled>🗑
+                            Clear</button>
+                        <button class="btn btn-primary btn-full" id="btn-checkout" style="flex:2" disabled>💳 Checkout &
+                            Print Receipt</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Receipt Modal -->
+        <div id="receipt-modal" class="modal">
+            <div class="modal-content"
+                style="max-width:420px;font-family:'Courier New',monospace;background:#fff;color:#000">
+                <div id="receipt-content" style="padding:1.5rem">
+                    <!-- Receipt printed here by JS -->
+                </div>
+                <div style="display:flex;gap:0.5rem;padding:0 1.5rem 1.5rem">
+                    <button class="btn btn-primary btn-full" id="btn-print-receipt">🖨 Print Receipt</button>
+                    <button class="btn btn-secondary btn-full" id="btn-close-receipt">✕ Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ ANALYTICS PAGE ═══ -->
+        <section id="page-analytics" class="page">
+            <div class="page-header">
+                <h2>Analytics Dashboard</h2>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Category-wise Stock Value</h3>
+                    <canvas id="chart-category-stock"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Wastage by Category</h3>
+                    <canvas id="chart-wastage"></canvas>
+                </div>
+            </div>
+            <div class="charts-grid" style="margin-top:1.5rem">
+                <div class="chart-card full-width">
+                    <h3>Revenue Timeline (30 Days)</h3>
+                    <canvas id="chart-revenue-line"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ BARCODE SCANNER PAGE ═══ -->
+        <section id="page-scanner" class="page">
+            <div class="page-header">
+                <h2>Barcode Scanner</h2>
+                <p class="subtitle">Scan product barcodes using your webcam or look them up below</p>
+            </div>
+            <div class="scanner-layout">
+                <div class="scanner-card">
+                    <div id="barcode-reader" class="barcode-reader"></div>
+                    <div class="scanner-controls">
+                        <button id="btn-start-scan" class="btn btn-primary">📷 Start Scanner</button>
+                        <button id="btn-stop-scan" class="btn btn-secondary" disabled>⏹ Stop</button>
+                    </div>
+                    <div class="manual-barcode">
+                        <input type="text" id="manual-barcode" class="text-input"
+                            placeholder="Enter barcode or item ID (e.g. 8900000000001)">
+                        <button id="btn-lookup-barcode" class="btn btn-primary">🔍 Look Up</button>
+                    </div>
+                </div>
+                <div class="scanner-result-card" id="scanner-result">
+                    <p class="placeholder-text">Scan a barcode or enter it manually to see product details.<br><br>💡
+                        <strong>Tip:</strong> Pick a barcode from the directory below and paste it here.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Product Barcode Directory -->
+            <div style="margin-top:1.5rem">
+                <div class="chart-card">
+                    <h3>📋 Product Barcode Directory</h3>
+                    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem">Click any barcode to
+                        instantly look up the product.</p>
+                    <div style="margin-bottom:1rem">
+                        <input type="text" id="barcode-dir-search" class="text-input"
+                            placeholder="Search products by name, ID, or barcode..." style="width:100%;max-width:400px">
+                    </div>
+                    <div class="table-container" style="max-height:400px;overflow-y:auto">
+                        <table class="data-table" id="barcode-dir-table">
+                            <thead>
+                                <tr>
+                                    <th>Item ID</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Barcode</th>
+                                    <th>Stock</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="barcode-dir-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ ML INSIGHTS PAGE ═══ -->
+        <section id="page-ml" class="page">
+            <div class="page-header">
+                <h2>🤖 ML Seasonal Insights</h2>
+                <p class="subtitle">AI-powered demand prediction based on sales data</p>
+            </div>
+            <div id="ml-insights-container" class="ml-container">
+                <div class="charts-grid">
+                    <div class="chart-card full-width">
+                        <h3>Seasonal Demand Predictions</h3>
+                        <div class="ml-controls">
+                            <select id="ml-category-select" class="select-input">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <canvas id="chart-seasonal"></canvas>
+                    </div>
+                </div>
+
+                <!-- NEW: Purchase Order Drafts -->
+                <div class="po-drafts-section" style="margin-top:2rem;margin-bottom:2rem">
+                    <div class="chart-card full-width">
+                        <h3 style="display:flex;align-items:center;gap:0.5rem">
+                            <span>📦 Automated Purchase Order Drafts</span>
+                            <span class="pulse-badge" style="font-size:0.6rem;padding:0.2rem 0.5rem">ML POWERED</span>
+                        </h3>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem">
+                            Generated automatically when stock is predicted to run out within 48 hours based on
+                            real-time sales velocity.
+                        </p>
+                        <div id="po-drafts-list" class="po-list-container">
+                            <p class="placeholder-text" style="padding:2rem">Calculating real-time stock health...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ml-insights-grid" id="ml-insights-grid"></div>
+            </div>
+        </section>
+
+        <!-- ═══ ADD PRODUCT MODAL ═══ -->
+        <div id="product-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add New Product</h3>
+                    <button class="modal-close" id="modal-close">&times;</button>
+                </div>
+                <form id="product-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pf-item-id">Item ID</label>
+                            <input type="text" id="pf-item-id" class="text-input" required placeholder="ITM0XXX">
+                        </div>
+                        <div class="form-group">
+                            <label for="pf-name">Product Name</label>
+                            <input type="text" id="pf-name" class="text-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pf-category">Category</label>
+                            <select id="pf-category" class="select-input" required>
+                                <option value="Soft Drinks">Soft Drinks</option>
+                                <option value="Canned">Canned</option>
+                                <option value="Dairy">Dairy</option>
+                                <option value="Baking Goods">Baking Goods</option>
+                                <option value="Frozen Foods">Frozen Foods</option>
+                                <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                                <option value="Snack Foods">Snack Foods</option>
+                                <option value="Household">Household</option>
+                                <option value="Health and Hygiene">Health and Hygiene</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pf-mrp">MRP (₹)</label>
+                            <input type="number" id="pf-mrp" step="0.01" class="text-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pf-barcode">Barcode</label>
+                            <input type="text" id="pf-barcode" class="text-input" placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label for="pf-min-stock">Min Stock Level</label>
+                            <input type="number" id="pf-min-stock" value="10" class="text-input">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Save Product</button>
+                </form>
+            </div>
+        </div>
+        </div>
+
+        <!-- Restock Modal -->
+        <div id="modal-restock" class="modal">
+            <div class="modal-content">
+                <h3>Restock Item</h3>
+                <input type="hidden" id="restock-product-id">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="restock-product-name" disabled class="text-input"
+                        style="background:#2a2a40;color:#fff">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="restock-qty" class="text-input" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price (unit)</label>
+                        <input type="number" id="restock-cost" class="text-input" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mfg Date</label>
+                        <input type="date" id="restock-mfg" class="text-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" id="restock-exp" class="text-input">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeRestockModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitRestock()">Confirm Restock</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wastage Modal -->
+        <div id="modal-wastage" class="modal">
+            <div class="modal-content">
+                <h3>Mark as Wastage</h3>
+                <input type="hidden" id="wastage-batch-id">
+                <input type="hidden" id="wastage-product-id">
+                <div class="form-group">
+                    <label>Product / Batch</label>
+                    <input type="text" id="wastage-product-name" disabled class="text-input"
+                        style="background:#2a2a40;color:#fff">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity Wasted</label>
+                        <input type="number" id="wastage-qty" class="text-input" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <select id="wastage-reason" class="text-input">
+                            <option value="Expired">Expired</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Theft">Theft</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="wastage-notes" class="text-input" rows="2"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeWastageModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="submitWastage()">Confirm Wastage</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
