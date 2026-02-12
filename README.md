@@ -6,6 +6,9 @@
 ![Playwright](https://img.shields.io/badge/Playwright-Test-green.svg)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
+## Team name : Blue Whales 
+##Team Members : Navin Vishwa, Balaa Ts, Armaan Sadat, Aayush Ramkumar
+
 A complete **Inventory Management System** designed for campus stores to track stock levels, monitor expiry dates, and predict seasonal demand using Machine Learning.
 
 ---
