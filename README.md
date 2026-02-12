@@ -87,4 +87,3 @@ Open [http://localhost:8000](http://localhost:8000)
 | GET | `/api/ml/insights` | Category insights |
 
 ---
-*Built with ❤️ for campus life*
