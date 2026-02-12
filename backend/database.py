@@ -8,7 +8,12 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./campus_store.db")
+DATABASE_URL = (
+    os.getenv("DATABASE_URL")
+    or os.getenv("POSTGRES_URL")
+    or os.getenv("POSTGRES_URL_NON_POOLING")
+    or "sqlite:///./campus_store.db"
+)
 
 # SQLAlchemy 1.4+ requires postgresql://, but some hosts provide postgres://
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
