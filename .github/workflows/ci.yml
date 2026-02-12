@@ -1,0 +1,82 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # ─── Setup ───
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+        cache: 'pip' # Caching pip dependencies
+
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: 'npm' # Caching npm dependencies
+
+    # ─── Install Dependencies ───
+    - name: Install Backend Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+
+    - name: Install Frontend Dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    # ─── Linting ───
+    - name: Lint Backend with Flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 backend --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    # ─── Backend Testing ───
+    - name: Run Backend Tests with Coverage
+      run: |
+        coverage run -m pytest tests/backend
+        coverage report -m
+        coverage xml # For potential coverage uploads
+
+    # ─── Frontend/E2E Testing ───
+    - name: Start Backend Server
+      run: |
+        nohup python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
+        echo "Backend started in background. PID: $!"
+
+    - name: Wait for Backend to be Ready
+      run: npx wait-on tcp:8000 --timeout 30000
+
+    - name: Run Playwright E2E Tests
+      run: npx playwright test
+
+    # ─── Artifacts ───
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+
+    - name: Upload Backend Logs (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-logs
+        path: backend.log

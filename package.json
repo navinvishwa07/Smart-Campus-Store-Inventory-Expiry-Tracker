@@ -1,0 +1,16 @@
+{
+  "name": "smart-campus-store-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for Smart Campus Store",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:backend": "pytest tests/backend",
+    "test:all": "pytest tests/backend && npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "wait-on": "^9.0.3"
+  }
+}
