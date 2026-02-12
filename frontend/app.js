@@ -3,7 +3,8 @@
  * Handles all dashboard pages, charts, barcode scanning, and ML insights.
  */
 
-const API = '';  // Same origin
+// Configure API URL (import.meta.env injected by Vite on Vercel)
+const API = (import.meta && import.meta.env && import.meta.env.VITE_API_URL) ? import.meta.env.VITE_API_URL : '';
 
 // ═══════════════════════════════════════
 // STATE & INIT
@@ -2073,3 +2074,85 @@ function exportInventoryCSV() {
     window.URL.revokeObjectURL(url);
     setTimeout(() => document.body.removeChild(a), 100);
 }
+
+// Expose functions to window for onclick handlers (Vite module scope issue fix)
+window.exportInventoryCSV = exportInventoryCSV;
+window.closeRestockModal = closeRestockModal;
+window.submitRestock = submitRestock;
+window.closeWastageModal = closeWastageModal;
+window.submitWastage = submitWastage;
+window.clearAllNotifications = clearAllNotifications;
+window.openRestockModal = openRestockModal;
+window.openWastageModal = openWastageModal;
+window.openEditProductModal = openEditProductModal;
+
+// Auto-exposed functions for HTML event handlers
+window.animateValue = animateValue;
+window.apiFetch = apiFetch;
+window.checkPulseDiscount = checkPulseDiscount;
+window.checkout = checkout;
+window.clearAllDismissed = clearAllDismissed;
+window.deleteProduct = deleteProduct;
+window.dismissAllNotifs = dismissAllNotifs;
+window.dismissNotif = dismissNotif;
+window.dismissSingleNotif = dismissSingleNotif;
+window.formatCurrency = formatCurrency;
+window.generateReceipt = generateReceipt;
+window.getDismissedNotifs = getDismissedNotifs;
+window.handleNotifClick = handleNotifClick;
+window.highlightInventoryRow = highlightInventoryRow;
+window.initBroadcastSync = initBroadcastSync;
+window.initClock = initClock;
+window.initInventoryScanner = initInventoryScanner;
+window.initModals = initModals;
+window.initNavigation = initNavigation;
+window.initNotifications = initNotifications;
+window.initPOSForm = initPOSForm;
+window.initScanner = initScanner;
+window.initSearch = initSearch;
+window.inventoryBarcodeLookup = inventoryBarcodeLookup;
+window.loadAnalytics = loadAnalytics;
+window.loadBarcodeDirectory = loadBarcodeDirectory;
+window.loadCategories = loadCategories;
+window.loadCategoryStockChart = loadCategoryStockChart;
+window.loadDashboard = loadDashboard;
+window.loadExpiry = loadExpiry;
+window.loadInventory = loadInventory;
+window.loadMLInsights = loadMLInsights;
+window.loadPOS = loadPOS;
+window.loadPurchaseOrders = loadPurchaseOrders;
+window.loadRevenueLineChart = loadRevenueLineChart;
+window.loadRevenueTrend = loadRevenueTrend;
+window.loadWastageChart = loadWastageChart;
+window.lookupBarcode = lookupBarcode;
+window.markWastage = markWastage;
+window.notifId = notifId;
+window.openAddProductWithBarcode = openAddProductWithBarcode;
+window.posBarcodeLookup = posBarcodeLookup;
+window.quickBarcodeLookup = quickBarcodeLookup;
+window.refreshKPIs = refreshKPIs;
+window.removeFromCart = removeFromCart;
+window.renderBarcodeDirectory = renderBarcodeDirectory;
+window.renderCart = renderCart;
+window.renderCategorySalesChart = renderCategorySalesChart;
+window.renderExpiryAlerts = renderExpiryAlerts;
+window.renderMLInsightCards = renderMLInsightCards;
+window.renderNotificationList = renderNotificationList;
+window.renderProductResult = renderProductResult;
+window.renderSeasonalChart = renderSeasonalChart;
+window.renderStockAlerts = renderStockAlerts;
+window.setKPIs = setKPIs;
+window.showInventoryFoundProduct = showInventoryFoundProduct;
+window.showNewProductPrompt = showNewProductPrompt;
+window.showRestockModal = showRestockModal;
+window.showToast = showToast;
+window.showWastageModal = showWastageModal;
+window.startInventoryScanner = startInventoryScanner;
+window.startKPIPolling = startKPIPolling;
+window.startScanner = startScanner;
+window.stopInventoryScanner = stopInventoryScanner;
+window.stopKPIPolling = stopKPIPolling;
+window.stopScanner = stopScanner;
+window.switchPage = switchPage;
+window.updateNotifications = updateNotifications;
+window.viewBatches = viewBatches;
